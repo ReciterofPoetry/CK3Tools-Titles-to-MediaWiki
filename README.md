@@ -51,6 +51,8 @@ Secondly, add parameters as reasonable:
 | `m` | Modifiers in Counties |
 | `sbm` | `sb` and `m` combined |
 
+**Note: Parameters that don't make sense for a title rank or type shouldn't be added. Adding Duchy Liege for Empires will just output blanks. It won't break but there's no point.**
+
 These are the personal settings that I use:
 ```DJE n cpt vk cvc t
 TE n cpt vk t
