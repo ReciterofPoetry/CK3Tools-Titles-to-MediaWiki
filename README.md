@@ -54,7 +54,8 @@ Secondly, add parameters as reasonable:
 **Note: Parameters that don't make sense for a title rank or type shouldn't be added. Adding Duchy Liege for Empires will just output blanks. It won't break but there's no point.**
 
 These are the personal settings that I use:
-```DJE n cpt vk cvc t
+```
+DJE n cpt vk cvc t
 TE n cpt vk t
 DJK n cpt vd le cvc t
 TK n cpt le t
