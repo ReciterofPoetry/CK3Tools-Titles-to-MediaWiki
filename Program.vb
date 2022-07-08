@@ -746,7 +746,7 @@ Module Program
                     If Text(0).Contains("Baronies") Then
                         Dim ColumnCount As Integer = Text(0).Substring(0, Text(0).IndexOf("Baronies")).Split("!"c).Length + 4
                         Text(0) = Text(0).Insert(Text(0).IndexOf("Baronies") + 10, " Metropoleis!!")
-                        For Count = 1 To Text.Count - 2
+                        For Count = 1 To Text.Count - 1 'Put - 2 here before for some reason.
                             Dim Title As String = Text(Count).Split("||")(1)
                             Dim Insertion As String = ""
                             If OutputData.ContainsKey(Title) Then
