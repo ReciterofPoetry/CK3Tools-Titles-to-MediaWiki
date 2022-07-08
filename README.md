@@ -7,7 +7,10 @@ Installation: Just extract it. Make sure it is in its own folder.
 -- **Note - The only way this works with multiple start dates is if you use this tool individually on each. Merging is not possible.**
 - Step 2: Copy the save into the root folder of this portable tool.
 - Step 3: Run. After a few seconds it will show a prompt that goes, "Enter output code or path to file with codes." Currently the way the tool is told the format in which to write the table is through a string of code. This is a CLI app. I'm sorry.
-- Step 4: Paste in the code, or a text file that contains multiple codes for batch processing. The output files will be deposited on your desktop.
+- Step 4: Paste in either:
+-- The individiual code
+-- Or the *file path* of a text file that contains multiple codes for batch processing. 
+- The output files will be deposited on your desktop.
 
 Dictionary of commands:
 
@@ -53,7 +56,7 @@ Secondly, add parameters as reasonable:
 
 **Note: Parameters that don't make sense for a title rank or type shouldn't be added. Adding Duchy Liege for Empires will just output blanks. It won't break but there's no point.**
 
-These are the personal settings that I use:
+These are the personal settings that I use (with batch instead of one by one):
 ```
 DJE n cpt vk cvc t
 TE n cpt vk t
@@ -63,4 +66,4 @@ DJD n lk le cpt vc cvc lc cvb dt dh sbm t
 TD n lk le cpt t
 C n ld lk le cvb dc sbm f clt t
 ```
-I don't advise adding more to these. You might even remove a few. Too much information doesn't work well with MediaWiki. At best it's difficult to upload, at worst the page won't show properly or nicely.
+I don't advise adding more options to these. You might even remove a few. Too much information doesn't work well with MediaWiki. At best it's difficult to upload, at worst the page won't show properly or nicely.
