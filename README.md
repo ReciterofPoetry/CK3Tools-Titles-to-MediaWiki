@@ -7,9 +7,7 @@ Installation: Just extract it. Make sure it is in its own folder.
 -- **Note - The only way this works with multiple start dates is if you use this tool individually on each. Merging is not possible.**
 - Step 2: Copy the save into the root folder of this portable tool.
 - Step 3: Run. After a few seconds it will show a prompt that goes, "Enter output code or path to file with codes." Currently the way the tool is told the format in which to write the table is through a string of code. This is a CLI app. I'm sorry.
-- Step 4: Paste in either:
--- The individiual code
--- Or the *file path* of a text file that contains multiple codes for batch processing. 
+- Step 4: Paste in either: 1 - The individiual code 2 - Or the *file path* of a text file that contains multiple codes for batch processing. 
 - The output files will be deposited on your desktop.
 
 Dictionary of commands:
