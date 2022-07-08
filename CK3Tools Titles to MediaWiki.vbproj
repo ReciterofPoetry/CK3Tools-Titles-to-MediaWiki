@@ -4,8 +4,6 @@
 		<OutputType>Exe</OutputType>
 		<RootNamespace>CK3Tools_Titles_to_MediaWiki</RootNamespace>
 		<TargetFramework>net6.0</TargetFramework>
-		<SelfContained>true</SelfContained>
-		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 

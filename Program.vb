@@ -149,6 +149,10 @@ Module Program
             Loop While Text.Contains("="c)
         Next
 
+        Dim RawProvinces As List(Of String)
+        Dim BaronyLieges As New Dictionary(Of Integer, Integer)
+        Dim KeyOfTitle As New Dictionary(Of String, Integer)
+
         Using SR As New StreamReader(GS)
             Dim Delimitor, Splitter, LineData As String
             Dim SB As New StringBuilder()
@@ -165,7 +169,7 @@ Module Program
                 SB.AppendLine(LineData)
             Loop While Not LineData.StartsWith(Delimitor)
             Splitter = vbCrLf & vbTab & "}"c & vbCrLf
-            Dim RawProvinces As List(Of String) = SB.ToString.Split(Splitter).ToList
+            RawProvinces = SB.ToString.Split(Splitter).ToList
             RawProvinces.RemoveAt(RawProvinces.Count - 1)
             Dim RawSpecialBuildings As New Dictionary(Of Integer, String)
             Dim SpecialBuildingsList As New Dictionary(Of String, String)
@@ -213,8 +217,7 @@ Module Program
             Dim RawCapitals As New Dictionary(Of Integer, Integer)
             Dim RawVassals As New Dictionary(Of Integer, List(Of Integer))
             Dim RawLieges As New Dictionary(Of Integer, Dictionary(Of Byte, Integer))
-            Dim DuchyLieges, CountyLieges, BaronyLieges As New Dictionary(Of Integer, Integer)
-            Dim KeyOfTitle As New Dictionary(Of String, Integer)
+            Dim DuchyLieges, CountyLieges As New Dictionary(Of Integer, Integer)
             Dim KeyOfCounty As New Dictionary(Of String, Integer)
             Dim TitleSplit() As String
             For Each Block In RawTitles
@@ -704,9 +707,63 @@ Module Program
             Console.WriteLine("The output files have been deposited in your desktop. Press any key to exit.")
             Console.ReadKey(True)
         End If
+
+        'Extension for Godherja Metropoleis. This isn't favouritism or bias, I'm creating the wiki lists for the Godherja wiki right now and I'm not going to goddamn do these by hand.
+        If ModNames.Exists(Function(x) x.Contains("Godherja")) Then
+            Dim OutputData As New Dictionary(Of String, Integer)
+            Dim MetropoleisList As New Dictionary(Of String, String)
+            Dim RawMetropoleis As New List(Of Integer)
+            For Each Block In RawProvinces
+                With Block
+                    If .Contains("district_holding") Then
+                        Dim Province As Integer = .Substring(0, .IndexOf("="c)).TrimStart
+                        RawMetropoleis.Add(Province)
+                    End If
+                End With
+            Next
+
+            For Each Item In RawMetropoleis
+                Dim CountyKey As Integer = BaronyLieges(KeyOfTitle(Provinces(Item)))
+                Dim County As String = Names(CountyKey)
+                If Not OutputData.ContainsKey(County) Then
+                    OutputData.Add(County, 1)
+                Else
+                    OutputData(County) += 1
+                End If
+                Dim Duchy As String = Lieges(d)(CountyKey)
+                If Not OutputData.ContainsKey(Duchy) Then
+                    OutputData.Add(Duchy, 1)
+                Else
+                    OutputData(Duchy) += 1
+                End If
+            Next
+
+            Dim TextFiles As New List(Of String) From {Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{OutputName} De Jure Duchies.txt"), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{OutputName} Counties.txt")}
+            For Each TextFile In TextFiles
+                If File.Exists(TextFile) Then
+                    Dim Text As List(Of String) = File.ReadAllText(TextFile).Split("|-").ToList
+                    Text(Text.Count - 1) = $"{Text(Text.Count - 1).Substring(0, Text(Text.Count - 1).LastIndexOf("|}"))}"
+                    If Text(0).Contains("Baronies") Then
+                        Dim ColumnCount As Integer = Text(0).Substring(0, Text(0).IndexOf("Baronies")).Split("!"c).Length + 4
+                        Text(0) = Text(0).Insert(Text(0).IndexOf("Baronies") + 10, " Metropoleis!!")
+                        For Count = 1 To Text.Count - 2
+                            Dim Title As String = Text(Count).Split("||")(1)
+                            Dim Insertion As String = ""
+                            If OutputData.ContainsKey(Title) Then
+                                Insertion = OutputData(Title)
+                            End If
+                            Text(Count) = Text(Count).Insert(GetNthIndex(Text(Count), "|"c, ColumnCount) + 1, $"{Insertion}||")
+                        Next
+                        Text(Text.Count - 1) &= "|}"
+                        File.WriteAllText(TextFile, String.Join("|-", Text))
+                    End If
+                End If
+            Next
+        End If
     End Sub
     'SetUp and Functions
     Sub SetUp()
+        'TODO: Remove read and write time checks and make sure it always extracts.
         If Directory.GetFiles(BaseDir).ToList.Exists(Function(x) x.EndsWith(".ck3")) Then
             Dim SaveFile As String = Directory.GetFiles(BaseDir).ToList.FindAll(Function(x) x.EndsWith(".ck3")).OrderByDescending(Function(x) New FileInfo(x).CreationTime).First()
             If File.Exists(GS) AndAlso DateTime.Compare(File.GetCreationTime(SaveFile), File.GetCreationTime(GS)) < 0 Then
@@ -910,12 +967,23 @@ Module Program
 
         Dim LocalisationFiles As List(Of String) = Directory.GetFiles(GameDir & "\localization\english", "*.yml", SearchOption.AllDirectories).ToList
 
+        Dim Langs As List(Of String) = Directory.GetDirectories(GameDir & "\localization").ToList.ConvertAll(Function(x) $"{Path.DirectorySeparatorChar}{x.Split({Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}).Last}")
+        Langs.Add(Path.DirectorySeparatorChar & "replace") 'Determine all the languages supported by gase games. Save their folder names and their replace folder names.
+
         For Each ModPath In ModPaths
+
+            Dim AltDirs As List(Of String) = Directory.EnumerateDirectories(ModPath & "\localization").ToList.FindAll(Function(x) Not Langs.Contains($"{Path.DirectorySeparatorChar}{x.Split({Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}).Last}"))
+
             If Directory.Exists(ModPath & "\localization\english") Then
                 LocalisationFiles = LocalisationFiles.Concat(Directory.GetFiles(ModPath & "\localization\english", "*.yml", SearchOption.AllDirectories)).ToList
             End If
             If Directory.Exists(ModPath & "\localization\replace\english") Then
                 LocalisationFiles = LocalisationFiles.Concat(Directory.GetFiles(ModPath & "\localization\replace\english", "*.yml", SearchOption.AllDirectories)).ToList
+            End If
+            If Not AltDirs.Count = 0 Then
+                For Each AltDir In AltDirs
+                    LocalisationFiles = LocalisationFiles.Concat(Directory.GetFiles(AltDir, "*.yml", SearchOption.AllDirectories)).ToList
+                Next
             End If
         Next
 
@@ -1345,5 +1413,11 @@ Module Program
         Else
             Return ""
         End If
+    End Function
+    Public Function GetNthIndex(searchString As String, charToFind As Char, n As Integer) As Integer
+        Dim charIndexPair = searchString.Select(Function(c, i) New With {.Character = c, .Index = i}) _
+                                        .Where(Function(x) x.Character = charToFind) _
+                                        .ElementAtOrDefault(n - 1)
+        Return If(charIndexPair IsNot Nothing, charIndexPair.Index, -1)
     End Function
 End Module
